@@ -33,6 +33,7 @@
             <button type="submit" id="btn"><b> Done</b></button>
         </div>
     </form>
+    <small id="error-text"></small>
 
     <table id="table-container">
         <tr id="heading-row">
@@ -62,6 +63,27 @@
             /*  background-color: rgb(250, 250, 194);  */
             background-color: white;
         }
+        /* scroll bar styling */
+        
+        body::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+            box-shadow: none;
+            border-radius: 10px;
+            background-color: #F5F5F5;
+        }
+        
+        body::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+        
+        body::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+            box-shadow: lightsalmon;
+            background-color: #000000;
+        }
+        /* Rest of the page's styling */
         
         .heading-container {
             display: flex;
@@ -154,55 +176,30 @@
             width: 1000em;
             height: 3em;
         }
-        /* table {
-            display: inline-flex;
-            flex-direction: column;
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            margin-top: 8%;
-            margin-bottom: 15%;
-        }
-                #heading-row {
-            display: flex;
-            flex-direction: row;
-            width: 100vw;
-            justify-items: center;
-        }
-        
-        .data-row {
-            display: flex;
-            flex-direction: row;
-            width: 100%;
-            justify-items: space-between;
-            justify-content: center;
-        }
-        
-        th {
-            width: 5%;
-            text-align: left;
-            margin: 4% 3%;
-        }
-        
-        td {
-            display: flex;
-            text-align: left;
-            margin: 2% 5%;
-        }
-
-        */
         
         tr:nth-child(even) {
             background-color: #dddddd;
+        }
+        
+        #error-text {
+            margin-top: 2%;
+            font-weight: 400;
+            font-size: medium;
+            text-align: center;
+            display: none;
+            color: red;
         }
     </style>
 
     <script>
         document.getElementById('btn').addEventListener('click', loadResult);
+
         alreadyDisplayed = [];
 
 
 
         function loadResult(event) {
+
 
             event.preventDefault();
             var inputValue = document.getElementById('inputElem').value.trim()
@@ -231,7 +228,16 @@
 
                     var dataItem = receivedData.Countries[item]
 
-                    if (dataItem.Country.toLowerCase() == inputValue.toLowerCase()) {
+                    var input_length = inputValue.length;
+
+                    output = "";
+
+                    for (var i = 0; i < input_length; i++) {
+                        output += dataItem.Country[i];
+                    }
+
+
+                    if (dataItem.Country.toLowerCase() == inputValue.toLowerCase() || output.toLowerCase() == inputValue.toLowerCase()) {
 
                         console.log('Match Found! \n' + dataItem.Country);
 
@@ -245,6 +251,10 @@
                 }
 
                 if (matchFound == false) {
+                    document.getElementById('error-text').style.display = 'block';
+                    document.getElementById('error-text').innerText = `Sorry, no match found for '${inputValue}' `;
+
+                    document.getElementsByTagName('input')[0].style.border = '3px solid red'
                     console.error('Sorry no match found!')
                 }
 
@@ -252,14 +262,53 @@
 
             function displayData(data, alreadyDisplayed, inputValue) {
 
+                // checking if inputValue has already had it's results displayed or not
+
+                output = "";
+
                 for (var i = 0; i < alreadyDisplayed.length; i++) {
 
-                    if (alreadyDisplayed[i] == inputValue.toLowerCase()) {
+                    if (alreadyDisplayed[i] == data.Country.toLowerCase()) {
                         console.log('We have already displayed this country\'s data!!')
                         return 0;
                     }
 
+                    /* for (var j = 0; j < inputValue.length; j++) {
+
+                        output += alreadyDisplayed[i][j];
+
+                    }
+
+                    if (output.toLowerCase() == inputValue.toLowerCase()) {
+                        console.log('We have already displayed this country\'s data!!')
+                        return 0;
+                    } */
                 }
+
+
+                // First, we will erase the previous data rows.
+
+
+                /*            previousDataRows = document.getElementsByTagName('tr');
+            
+                            console.log(previousDataRows.length);
+            
+                            if (previousDataRows.length > 1) {
+            
+                                for (var i = 0; i < previousDataRows.length; i++) {
+            
+                                    if (i > 1) {
+                                        previousDataRows[i].style.display = 'none';
+                                    }
+                                }
+            
+                            }
+            */
+
+
+
+                // if results of inputValue haven't been displayed yet, they will be displayed now.
+
 
                 console.log('displaying data...wait...')
 
@@ -323,6 +372,24 @@
 
                 console.log(alreadyDisplayed)
 
+            }
+
+            function isSubSequence(str1, str2, m, n) {
+
+                // Base Cases
+                if (m == 0)
+                    return true;
+                if (n == 0)
+                    return false;
+
+                // If last characters of two strings
+                // are matching
+                if (str1[m - 1] == str2[n - 1])
+                    return isSubSequence(str1, str2,
+                        m - 1, n - 1);
+
+                // If last characters are not matching
+                return isSubSequence(str1, str2, m, n - 1);
             }
 
             xhr.send();
