@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Covid Tracker</title>
+</head>
+
+<body>
+    <div class="heading-container">
+        <svg xmlns="http://www.w3.org/2000/svg" id="tracker-icon" class="icon icon-tabler icon-tabler-virus-search" width="68" height="68" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M17 12a5 5 0 1 0 -5 5" />
+            <path d="M12 7v-4m-1 0h2" />
+            <path d="M12 7v-4m-1 0h2" transform="rotate(45 12 12)" />
+            <path d="M12 7v-4m-1 0h2" transform="rotate(90 12 12)" />
+            <path d="M12 7v-4m-1 0h2" transform="rotate(180 12 12)" />
+            <path d="M12 7v-4m-1 0h2" transform="rotate(225 12 12)" />
+            <path d="M12 7v-4m-1 0h2" transform="rotate(270 12 12)" />
+            <path d="M12 7v-4m-1 0h2" transform="rotate(315 12 12)" />
+            <circle cx="17.5" cy="17.5" r="2.5" />
+            <line x1="19.5" y1="19.5" x2="22" y2="22" />
+        </svg>
+        <h1>Track Covid-19 Cases</h1>
+    </div>
+
+    <form class="input-main-container" method="POST">
+        <p>Enter a Country</p>
+        <div class="input-container">
+            <input type="text" id="inputElem">
+            <button type="submit" id="btn"><b> Done</b></button>
+        </div>
+    </form>
+
+    <table id="table-container">
+        <tr id="heading-row">
+
+            <th>Country</th>
+            <th>New Confirmed Cases</th>
+            <th>New Deaths</th>
+            <th>New Recovered Cases</th>
+            <th>Total Confirmed Cases</th>
+            <th>Total Deaths</th>
+            <th>Total Recovered</th>
+
+        </tr>
+    </table>
+
+    <div id="results-container"></div>
+
+    <style>
+        html,
+        body {
+            display: flex;
+            margin: 0px;
+            width: 100vw;
+            height: 100vh;
+            overflow-x: hidden;
+            flex-direction: column;
+            /*  background-color: rgb(250, 250, 194);  */
+            background-color: white;
+        }
+        
+        .heading-container {
+            display: flex;
+            width: 100%;
+            height: auto;
+            text-align: center;
+            justify-content: center;
+            justify-items: center;
+            font-size: 3em;
+            /*  background-color: rgb(233, 230, 230);   */
+            background-color: rgb(250, 188, 73);
+            flex-wrap: wrap;
+            border-radius: 10px;
+            flex-direction: row;
+        }
+        
+        #tracker-icon {
+            display: inline;
+            float: left;
+        }
+        
+        h1 {
+            font-family: Arial, Helvetica, sans-serif;
+            width: auto;
+        }
+        
+        .input-main-container {
+            display: flex;
+            width: 100%;
+            text-align: center;
+            align-content: center;
+            flex-direction: column;
+            margin-top: 12%;
+            font-size: xx-large;
+        }
+        
+        .input-container {
+            display: flex;
+            justify-content: center;
+        }
+        
+        input {
+            border-radius: 5px;
+            font-size: xx-large;
+            color: grey;
+            height: 100%;
+            width: 20%;
+            border: 1px solid orange;
+        }
+        
+        button {
+            display: flex;
+            align-items: center;
+            justify-items: center;
+            background-color: orange;
+            border: 1px solid orange;
+            border-radius: 5px;
+            margin-left: 0.3%;
+            height: 110%;
+            width: 4%;
+            color: rgb(255, 255, 255);
+            text-align: center;
+            font-size: large;
+            flex-wrap: wrap;
+        }
+        
+        button:hover {
+            cursor: pointer;
+            background-color: rgb(255, 185, 56);
+        }
+        
+        #table-container {
+            display: none;
+            margin-top: 10%;
+            margin-bottom: 10%;
+            width: 100%;
+            height: auto;
+            text-align: center;
+            padding: 0px;
+            justify-content: center;
+        }
+        
+        th {
+            width: 1000em;
+            height: 5em;
+            font-family: ‘Lato’, sans-serif;
+        }
+        
+        td {
+            width: 1000em;
+            height: 3em;
+        }
+        /* table {
+            display: inline-flex;
+            flex-direction: column;
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            margin-top: 8%;
+            margin-bottom: 15%;
+        }
+                #heading-row {
+            display: flex;
+            flex-direction: row;
+            width: 100vw;
+            justify-items: center;
+        }
+        
+        .data-row {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-items: space-between;
+            justify-content: center;
+        }
+        
+        th {
+            width: 5%;
+            text-align: left;
+            margin: 4% 3%;
+        }
+        
+        td {
+            display: flex;
+            text-align: left;
+            margin: 2% 5%;
+        }
+
+        */
+        
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+
+    <script>
+        document.getElementById('btn').addEventListener('click', loadResult);
+        alreadyDisplayed = [];
+
+
+
+        function loadResult(event) {
+
+            event.preventDefault();
+            var inputValue = document.getElementById('inputElem').value.trim()
+                //console.log(inputValue);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', 'https://api.covid19api.com/summary', true);
+
+            xhr.onload = function() {
+
+                if (inputValue == '') {
+                    return 0;
+                }
+
+                const receivedData = JSON.parse(this.responseText);
+                console.log(receivedData);
+
+
+                var matchFound = false;
+
+
+
+                for (var item in receivedData.Countries) {
+
+
+                    var dataItem = receivedData.Countries[item]
+
+                    if (dataItem.Country.toLowerCase() == inputValue.toLowerCase()) {
+
+                        console.log('Match Found! \n' + dataItem.Country);
+
+                        matchFound = true;
+
+                        displayData(dataItem, alreadyDisplayed, inputValue);
+
+                    } else {
+                        continue;
+                    }
+                }
+
+                if (matchFound == false) {
+                    console.error('Sorry no match found!')
+                }
+
+            }
+
+            function displayData(data, alreadyDisplayed, inputValue) {
+
+                for (var i = 0; i < alreadyDisplayed.length; i++) {
+
+                    if (alreadyDisplayed[i] == inputValue.toLowerCase()) {
+                        console.log('We have already displayed this country\'s data!!')
+                        return 0;
+                    }
+
+                }
+
+                console.log('displaying data...wait...')
+
+                document.getElementById('table-container').style.display = 'inline-flex';
+
+                heading_row = document.getElementById('heading-row');
+
+
+                // Creating a new row to display data.
+
+                new_table_row = document.createElement('tr');
+
+                // Adding a class to it:
+
+                new_table_row.classList.add('data-row');
+
+
+                // Getting all the necessary values from the JSON object.
+
+
+
+                country_value = document.createElement('td');
+                country_value.innerText = data.Country;
+
+                newCases = document.createElement('td');
+                newCases.innerText = data.NewConfirmed;
+
+                newDeaths = document.createElement('td');
+                newDeaths.innerText = data.NewDeaths;
+
+                newRecovered = document.createElement('td');
+                newRecovered.innerText = data.NewRecovered;
+
+                totalConfirmed = document.createElement('td');
+                totalConfirmed.innerText = data.TotalConfirmed;
+
+                totalDeaths = document.createElement('td');
+                totalDeaths.innerText = data.TotalDeaths;
+
+                totalRecovered = document.createElement('td');
+                totalRecovered.innerText = data.TotalRecovered;
+
+
+                // adding all the data values to the row:
+
+                new_table_row.appendChild(country_value);
+                new_table_row.appendChild(newCases);
+                new_table_row.appendChild(newDeaths);
+                new_table_row.appendChild(newRecovered);
+                new_table_row.appendChild(totalConfirmed);
+                new_table_row.appendChild(totalDeaths);
+                new_table_row.appendChild(totalRecovered);
+
+
+                // adding row to the table:
+
+
+                heading_row.insertAdjacentElement('afterend', new_table_row);
+
+                alreadyDisplayed.push(data.Country.toLowerCase());
+
+                console.log(alreadyDisplayed)
+
+            }
+
+            xhr.send();
+        }
+    </script>
+
+</body>
+
+</html>
